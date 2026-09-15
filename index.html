@@ -22,6 +22,7 @@
     </a>
     <nav class="primary-nav" aria-label="Primary navigation">
       <button class="nav-link active" data-view="discover">Discover</button>
+      <button class="nav-link" data-view="watchNow">What to watch <span id="watchNowCount" class="count">0</span></button>
       <button class="nav-link" data-view="plan">My plan <span id="planCount" class="count">0</span></button>
       <button class="nav-link" data-view="optimizer">Optimizer</button>
     </nav>
@@ -36,7 +37,7 @@
           <option value="AU">Australia</option>
         </select>
       </label>
-      <button class="avatar" aria-label="Profile">BS</button>
+      <button id="accountButton" class="avatar" aria-label="Sign in to save your data">Sign in</button>
     </div>
   </header>
 
@@ -74,6 +75,26 @@
         </div>
         <div id="resultsGrid" class="results-grid"></div>
       </div>
+    </section>
+
+    <section id="watchNowView" class="view content-page">
+      <div class="page-title-row">
+        <div>
+          <span class="section-kicker">ALREADY INCLUDED</span>
+          <h1>What to watch now</h1>
+          <p>Recommendations available on subscriptions you already own. Mark a title watched and it leaves your queue automatically.</p>
+        </div>
+        <button class="secondary-btn" data-view-jump="optimizer">Manage subscriptions</button>
+      </div>
+      <div id="watchNowServices" class="owned-strip"></div>
+      <div id="watchNowGrid" class="watch-now-grid"></div>
+      <section class="history-panel">
+        <div class="history-heading">
+          <div><span class="section-kicker">YOUR HISTORY</span><h2>Watched</h2></div>
+          <strong id="watchedCount">0 titles</strong>
+        </div>
+        <div id="watchedHistory" class="watched-history"></div>
+      </section>
     </section>
 
     <section id="planView" class="view content-page">
@@ -131,8 +152,10 @@
 
   <footer>
     <div class="footer-brand"><span class="brand-mark small"><i></i><i></i><i></i></span> Cinewise</div>
-    <p>Movie data from TMDB. Streaming availability powered by JustWatch. IMDb ratings are separately sourced when available.</p>
+    <p>Movie data from TMDB. Streaming availability from Watchmode and JustWatch via TMDB. IMDb ratings are separately sourced when available.</p>
   </footer>
+  <script src="firebase-config.js"></script>
+  <script type="module" src="firebase-data.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

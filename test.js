@@ -40,4 +40,14 @@ assert.deepEqual([...results.mixedBundle.providers].sort(), ["apple","max"]);
 assert.equal(results.mixedBundle.total, 31.48);
 assert.equal(results.ownedBundle.total, 0);
 assert.equal(results.adsBundle.total, 10.99);
-console.log("All core tests passed: search, bundling, owned-service credit, and lowest-price mode.");
+const watchedResult = vm.runInContext(`(() => {
+  const title = DEMO_TITLES[0];
+  state.watchlist = [{ id:title.id, month:state.activeMonth, title }];
+  state.recommendations = [title];
+  applyWatched(title);
+  return { watched:state.watched.length, planned:state.watchlist.length, remaining:recommendationRows().length };
+})()`, sandbox);
+assert.equal(watchedResult.watched,1);
+assert.equal(watchedResult.planned,0);
+assert.equal(watchedResult.remaining,0);
+console.log("All core tests passed: optimization, owned services, watched history, and queue removal.");

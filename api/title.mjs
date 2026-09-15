@@ -1,5 +1,27 @@
 import { tmdb, send, fail, mediaType, summary, providerKey } from "./_tmdb.mjs";
 
+async function watchmodeSources(type, id, region) {
+  if (!process.env.WATCHMODE_API_KEY) return null;
+  const watchmodeType = type === "tv" ? "tv" : "movie";
+  const url = new URL(`https://api.watchmode.com/v1/title/${watchmodeType}-${id}/sources/`);
+  url.searchParams.set("regions", region);
+  const response = await fetch(url, { headers: { "X-API-Key": process.env.WATCHMODE_API_KEY, Accept: "application/json" } });
+  if (!response.ok) throw new Error(`Watchmode request failed (${response.status})`);
+  return response.json();
+}
+
+function normalizeWatchmode(source, tmdbOffers) {
+  const kind = { sub:"subscription", rent:"rent", buy:"buy", free:"free", tve:"tve" }[source.type] || source.type;
+  const matchingTmdb = tmdbOffers.find(offer => offer.providerName?.toLowerCase() === source.name?.toLowerCase());
+  return {
+    provider: providerKey(source.name), providerId: `watchmode-${source.source_id}`,
+    providerName: source.name, providerLogo: matchingTmdb?.providerLogo || null,
+    kind, adfree: kind !== "free", price: Number.isFinite(source.price) ? source.price : null,
+    webUrl: source.web_url || null, format: source.format || null,
+    seasons: source.seasons ?? null, episodes: source.episodes ?? null, source: "watchmode"
+  };
+}
+
 export default async function handler(req, res) {
   try {
     const type = mediaType(req.query.type);
@@ -13,7 +35,7 @@ export default async function handler(req, res) {
     ]);
     const base = summary({ ...details, media_type: type });
     const regionOffers = availability.results?.[region] || {};
-    const offers = [];
+    const tmdbOffers = [];
     const seen = new Set();
 
     for (const [kind, items] of Object.entries({
@@ -28,16 +50,26 @@ export default async function handler(req, res) {
         const unique = `${kind}-${item.provider_id}`;
         if (seen.has(unique)) continue;
         seen.add(unique);
-        offers.push({
+        tmdbOffers.push({
           provider: key,
           providerId: item.provider_id,
           providerName: item.provider_name,
           providerLogo: item.logo_path ? `https://image.tmdb.org/t/p/w92${item.logo_path}` : null,
           kind,
           adfree: kind !== "ads",
-          price: null
+          price: null,
+          webUrl: regionOffers.link || null,
+          source: "tmdb"
         });
       }
+    }
+
+    let watchmode = null;
+    try { watchmode = await watchmodeSources(type, id, region); } catch { /* TMDB remains the fallback. */ }
+    const offers = Array.isArray(watchmode) ? watchmode.map(source => normalizeWatchmode(source, tmdbOffers)) : [];
+    for (const offer of tmdbOffers) {
+      const duplicate = offers.some(item => item.kind === offer.kind && item.providerName?.toLowerCase() === offer.providerName?.toLowerCase());
+      if (!duplicate) offers.push(offer);
     }
 
     const runtime = type === "tv"
@@ -71,6 +103,6 @@ export default async function handler(req, res) {
       region,
       lastChecked: new Date().toISOString()
     };
-    return send(res, 200, { result }, true);
+    return send(res, 200, { result }, 604800);
   } catch (error) { return fail(res, error); }
 }

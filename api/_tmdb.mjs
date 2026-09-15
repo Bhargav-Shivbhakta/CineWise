@@ -29,7 +29,10 @@ export async function tmdb(path, params = {}) {
 export function send(res, status, body, cache = false) {
   res.setHeader("Content-Type", "application/json; charset=utf-8");
   res.setHeader("X-Content-Type-Options", "nosniff");
-  if (cache) res.setHeader("Cache-Control", "s-maxage=900, stale-while-revalidate=3600");
+  if (cache) {
+    const seconds = typeof cache === "number" ? cache : 900;
+    res.setHeader("Cache-Control", `s-maxage=${seconds}, stale-while-revalidate=${seconds * 2}`);
+  }
   return res.status(status).json(body);
 }
 

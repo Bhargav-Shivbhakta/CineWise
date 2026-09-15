@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#08090c" />
+  <meta name="description" content="Cinewise — discover where to watch and optimize your monthly streaming subscriptions." />
+  <title>Cinewise — Watch smarter</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="ambient ambient-one"></div>
+  <div class="ambient ambient-two"></div>
+
+  <header class="topbar">
+    <a class="brand" href="#" aria-label="Cinewise home">
+      <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+      <span>Cinewise</span>
+    </a>
+    <nav class="primary-nav" aria-label="Primary navigation">
+      <button class="nav-link active" data-view="discover">Discover</button>
+      <button class="nav-link" data-view="plan">My plan <span id="planCount" class="count">0</span></button>
+      <button class="nav-link" data-view="optimizer">Optimizer</button>
+    </nav>
+    <div class="top-actions">
+      <label class="region-select" aria-label="Viewing region">
+        <span id="regionFlag">🇺🇸</span>
+        <select id="regionPicker">
+          <option value="US">United States</option>
+          <option value="IN">India</option>
+          <option value="GB">United Kingdom</option>
+          <option value="CA">Canada</option>
+          <option value="AU">Australia</option>
+        </select>
+      </label>
+      <button class="avatar" aria-label="Profile">BS</button>
+    </div>
+  </header>
+
+  <main>
+    <section id="discoverView" class="view active">
+      <div class="hero">
+        <div class="eyebrow"><span></span> One search. Every screen.</div>
+        <h1>Find it. Plan it.<br><em>Watch smarter.</em></h1>
+        <p>Search movies and series across streaming services. Compare every legal option, then build the cheapest monthly watch plan.</p>
+        <div class="search-shell">
+          <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m21 21-4.35-4.35m2.35-5.65a8 8 0 1 1-16 0 8 8 0 0 1 16 0Z"/></svg>
+          <input id="searchInput" type="search" autocomplete="off" placeholder="Search The Sopranos, Dune, Severance…" aria-label="Search movies and TV shows" />
+          <kbd>⌘ K</kbd>
+        </div>
+        <div class="trust-row">
+          <span><i class="status-dot"></i> Live availability</span>
+          <span>•</span>
+          <span>Movies & series</span>
+          <span>•</span>
+          <span id="heroRegion">United States</span>
+        </div>
+      </div>
+
+      <div class="content-wrap">
+        <div class="section-heading">
+          <div>
+            <span class="section-kicker" id="resultKicker">CURATED FOR TONIGHT</span>
+            <h2 id="resultTitle">Popular right now</h2>
+          </div>
+          <div class="filter-pills" role="group" aria-label="Content filter">
+            <button class="pill active" data-filter="all">All</button>
+            <button class="pill" data-filter="movie">Movies</button>
+            <button class="pill" data-filter="series">Series</button>
+          </div>
+        </div>
+        <div id="resultsGrid" class="results-grid"></div>
+      </div>
+    </section>
+
+    <section id="planView" class="view content-page">
+      <div class="page-title-row">
+        <div>
+          <span class="section-kicker">YOUR WATCHING QUEUE</span>
+          <h1>My monthly plan</h1>
+          <p>Move titles between months and let Cinewise recalculate the cheapest services.</p>
+        </div>
+        <button class="primary-btn" data-view-jump="optimizer">Optimize subscriptions <span>→</span></button>
+      </div>
+      <div id="monthTabs" class="month-tabs"></div>
+      <div id="planSummary" class="plan-summary"></div>
+      <div id="watchlist" class="watchlist"></div>
+    </section>
+
+    <section id="optimizerView" class="view content-page">
+      <div class="page-title-row optimizer-title">
+        <div>
+          <span class="section-kicker">SUBSCRIPTION INTELLIGENCE</span>
+          <h1>Spend less. Watch everything.</h1>
+          <p>The optimizer compares every provider combination for your selected month.</p>
+        </div>
+        <div class="mode-toggle" role="group" aria-label="Optimization mode">
+          <button data-mode="adfree" class="active">Ad-free</button>
+          <button data-mode="overall">Cheapest overall</button>
+        </div>
+      </div>
+
+      <div class="optimizer-grid">
+        <aside class="optimizer-settings">
+          <div class="panel-title"><span>Plan settings</span><span class="live-badge">LIVE</span></div>
+          <label class="field-label" for="optimizerMonth">Planning month</label>
+          <select id="optimizerMonth" class="field-control"></select>
+          <label class="field-label" for="budgetInput">Monthly streaming budget</label>
+          <div class="budget-input"><span>$</span><input id="budgetInput" type="number" min="0" step="1" value="35" /><small>/ month</small></div>
+          <div class="divider"></div>
+          <div class="field-label">Services you already have</div>
+          <div id="ownedServices" class="service-checks"></div>
+          <p class="settings-note">Owned services count as $0 in your recommendation. Prices and catalogs vary by region.</p>
+        </aside>
+        <div id="optimizationResult" class="optimization-result"></div>
+      </div>
+    </section>
+  </main>
+
+  <div id="detailModal" class="modal-backdrop" aria-hidden="true">
+    <article class="detail-modal" role="dialog" aria-modal="true" aria-labelledby="detailTitle">
+      <button class="modal-close" aria-label="Close">×</button>
+      <div id="detailContent"></div>
+    </article>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <footer>
+    <div class="footer-brand"><span class="brand-mark small"><i></i><i></i><i></i></span> Cinewise</div>
+    <p>Availability data requires TMDB and JustWatch attribution in production. Prices should be confirmed on the provider site.</p>
+  </footer>
+  <script src="app.js"></script>
+</body>
+</html>
